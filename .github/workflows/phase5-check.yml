@@ -1,0 +1,28 @@
+name: Phase 5 validation
+
+on:
+  push:
+    branches: [phase5-visualization]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r sim/requirements.txt
+      - name: Run Phase 4 stress tests
+        run: python -m sim.stress_tests
+      - name: Generate Phase 5 dashboard
+        run: python -m sim.visualize
+      - name: Verify dashboard output
+        run: |
+          test -s shellroom_dashboard.html
+          grep -q 'CURRENT' shellroom_dashboard.html
+          grep -q 'PROPOSED' shellroom_dashboard.html
+          grep -q 'Shellroom conveyor simulation' shellroom_dashboard.html
